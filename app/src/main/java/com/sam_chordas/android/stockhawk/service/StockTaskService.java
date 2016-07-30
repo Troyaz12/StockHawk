@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.os.RemoteException;
 import android.util.Log;
+
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
@@ -16,6 +17,7 @@ import com.sam_chordas.android.stockhawk.rest.Utils;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -25,12 +27,12 @@ import java.net.URLEncoder;
  * The GCMTask service is primarily for periodic tasks. However, OnRunTask can be called directly
  * and is used for the initialization and adding task as well.
  */
-public class StockTaskService extends GcmTaskService{
+public class StockTaskService extends GcmTaskService{  //Implemented by the client application to provide an endpoint for the GcmNetworkManager to call back to when a task is ready to be executed.
   private String LOG_TAG = StockTaskService.class.getSimpleName();
 
-  private OkHttpClient client = new OkHttpClient();
+  private OkHttpClient client = new OkHttpClient(); // sends and receive HTTP-based network requests.
   private Context mContext;
-  private StringBuilder mStoredSymbols = new StringBuilder();
+  private StringBuilder mStoredSymbols = new StringBuilder();   //allows you to expand the number of chars in the string
   private boolean isUpdate;
 
   public StockTaskService(){}
@@ -39,16 +41,18 @@ public class StockTaskService extends GcmTaskService{
     mContext = context;
   }
   String fetchData(String url) throws IOException{
-    Request request = new Request.Builder()
+    Request request = new Request.Builder()    //an http request
         .url(url)
         .build();
 
-    Response response = client.newCall(request).execute();
+    Response response = client.newCall(request).execute();    //Call object and dispatch the network request synchronously
+
+
     return response.body().string();
   }
 
   @Override
-  public int onRunTask(TaskParams params){
+  public int onRunTask(TaskParams params){ //When the scheduler starts your service, a new thread is created and the system invokes onRunTask().
     Cursor initQueryCursor;
     if (mContext == null){
       mContext = this;
@@ -58,7 +62,7 @@ public class StockTaskService extends GcmTaskService{
       // Base URL for the Yahoo query
       urlStringBuilder.append("https://query.yahooapis.com/v1/public/yql?q=");
       urlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.quotes where symbol "
-        + "in (", "UTF-8"));
+        + "in (", "UTF-8"));        //static methods for converting a String to the application/x-www-form-urlencoded MIME format
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
@@ -76,7 +80,7 @@ public class StockTaskService extends GcmTaskService{
           e.printStackTrace();
         }
       } else if (initQueryCursor != null){
-        DatabaseUtils.dumpCursor(initQueryCursor);
+        DatabaseUtils.dumpCursor(initQueryCursor); //Prints the contents of a Cursor to System.out.
         initQueryCursor.moveToFirst();
         for (int i = 0; i < initQueryCursor.getCount(); i++){
           mStoredSymbols.append("\""+
@@ -93,7 +97,7 @@ public class StockTaskService extends GcmTaskService{
     } else if (params.getTag().equals("add")){
       isUpdate = false;
       // get symbol from params.getExtra and build query
-      String stockInput = params.getExtras().getString("symbol");
+      String stockInput = params.getExtras().getString("symbol");  //get stock symbol
       try {
         urlStringBuilder.append(URLEncoder.encode("\""+stockInput+"\")", "UTF-8"));
       } catch (UnsupportedEncodingException e){
@@ -111,7 +115,8 @@ public class StockTaskService extends GcmTaskService{
     if (urlStringBuilder != null){
       urlString = urlStringBuilder.toString();
       try{
-        getResponse = fetchData(urlString);
+        getResponse = fetchData(urlString);        //make a network call to get data
+        System.out.println("here is the data" +getResponse);
         result = GcmNetworkManager.RESULT_SUCCESS;
         try {
           ContentValues contentValues = new ContentValues();
@@ -121,8 +126,15 @@ public class StockTaskService extends GcmTaskService{
             mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues,
                 null, null);
           }
-          mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
-              Utils.quoteJsonToContentVals(getResponse));
+
+          //checks to make sure the ticker pulled a real stock
+          if(!getResponse.contains("\"Name\":null")) {
+            mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,  //Applies each of the ContentProviderOperation objects and returns an array of their results
+                    Utils.quoteJsonToContentVals(getResponse));
+          }else{
+            result = GcmNetworkManager.RESULT_FAILURE;
+            System.out.println("executed" + result);
+          }
         }catch (RemoteException | OperationApplicationException e){
           Log.e(LOG_TAG, "Error applying batch insert", e);
         }

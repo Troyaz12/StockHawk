@@ -16,11 +16,11 @@ public class QuoteProvider {
   static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
   interface Path{
-    String QUOTES = "quotes";
+    String QUOTES = "quotes";   //points to the quotes table
   }
 
   private static Uri buildUri(String... paths){
-    Uri.Builder builder = BASE_CONTENT_URI.buildUpon();
+    Uri.Builder builder = BASE_CONTENT_URI.buildUpon();  //Constructs a new builder, copying the attributes from this Uri.
     for (String path:paths){
       builder.appendPath(path);
     }
@@ -31,7 +31,7 @@ public class QuoteProvider {
   public static class Quotes{
     @ContentUri(
         path = Path.QUOTES,
-        type = "vnd.android.cursor.dir/quote"
+        type = "vnd.android.cursor.dir/quote"  //MIME type
     )
     public static final Uri CONTENT_URI = buildUri(Path.QUOTES);
 
@@ -44,6 +44,6 @@ public class QuoteProvider {
     )
     public static Uri withSymbol(String symbol){
       return buildUri(Path.QUOTES, symbol);
-    }
+    }   //gets the URI of the selected quote
   }
 }

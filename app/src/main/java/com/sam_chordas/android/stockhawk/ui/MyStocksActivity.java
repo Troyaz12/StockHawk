@@ -1,16 +1,19 @@
 package com.sam_chordas.android.stockhawk.ui;
 
 import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -20,7 +23,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
+import com.melnykov.fab.FloatingActionButton;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
@@ -29,13 +37,10 @@ import com.sam_chordas.android.stockhawk.rest.RecyclerViewItemClickListener;
 import com.sam_chordas.android.stockhawk.rest.Utils;
 import com.sam_chordas.android.stockhawk.service.StockIntentService;
 import com.sam_chordas.android.stockhawk.service.StockTaskService;
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.PeriodicTask;
-import com.google.android.gms.gcm.Task;
-import com.melnykov.fab.FloatingActionButton;
 import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallback;
 
-public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{ //Callback interface for a client to interact with the manager.
+
 
   /**
    * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -44,41 +49,44 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   /**
    * Used to store the last screen title. For use in {@link #restoreActionBar()}.
    */
-  private CharSequence mTitle;
+  private CharSequence mTitle;        //A CharSequence is a readable sequence of char values.
   private Intent mServiceIntent;
-  private ItemTouchHelper mItemTouchHelper;
+  private ItemTouchHelper mItemTouchHelper;   //This is a utility class to add swipe to dismiss and drag & drop support to RecyclerView.
   private static final int CURSOR_LOADER_ID = 0;
   private QuoteCursorAdapter mCursorAdapter;
   private Context mContext;
   private Cursor mCursor;
   boolean isConnected;
+  private int activityResult = 0;     //stores if the ticker was valid or not from the service
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = this;
-    ConnectivityManager cm =
-        (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+    ConnectivityManager cm =    //Class that answers queries about the state of network connectivity. It also notifies applications when network connectivity changes.
+        (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE); //get an instance of connectivity manager
+
+    NetworkInfo activeNetwork = cm.getActiveNetworkInfo(); // get an instance that represents the current network connection.
     isConnected = activeNetwork != null &&
-        activeNetwork.isConnectedOrConnecting();
-    setContentView(R.layout.activity_my_stocks);
+        activeNetwork.isConnectedOrConnecting();  //Indicates whether network connectivity exists or is in the process of being established.
+    setContentView(R.layout.activity_my_stocks);  //main screen that shows stocks
     // The intent service is for executing immediate pulls from the Yahoo API
     // GCMTaskService can only schedule tasks, they cannot execute immediately
-    mServiceIntent = new Intent(this, StockIntentService.class);
+    mServiceIntent = new Intent(this, StockIntentService.class);      //create service
     if (savedInstanceState == null){
       // Run the initialize task service so that some stocks appear upon an empty database
       mServiceIntent.putExtra("tag", "init");
       if (isConnected){
-        startService(mServiceIntent);
+        startService(mServiceIntent);   //run service
       } else{
         networkToast();
       }
     }
     RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+    getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);  //call ensures that a loader is initialized and active.
 
     mCursorAdapter = new QuoteCursorAdapter(this, null);
     recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
@@ -92,20 +100,21 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
 
     FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+    fab.setContentDescription(getString(R.string.add_stocks));
     fab.attachToRecyclerView(recyclerView);
     fab.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         if (isConnected){
-          new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
-              .content(R.string.content_test)
-              .inputType(InputType.TYPE_CLASS_TEXT)
+          new MaterialDialog.Builder(mContext).title(R.string.symbol_search)    //creates a dialog
+              .content(R.string.content_test)   //text label
+              .inputType(InputType.TYPE_CLASS_TEXT)       //type of data to enter
               .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                 @Override public void onInput(MaterialDialog dialog, CharSequence input) {
                   // On FAB click, receive user input. Make sure the stock doesn't already exist
                   // in the DB and proceed accordingly
                   Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
                       new String[] { QuoteColumns.SYMBOL }, QuoteColumns.SYMBOL + "= ?",
-                      new String[] { input.toString() }, null);
+                      new String[] { input.toString().toUpperCase() }, null);
                   if (c.getCount() != 0) {
                     Toast toast =
                         Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
@@ -116,8 +125,11 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                   } else {
                     // Add the stock to DB
                     mServiceIntent.putExtra("tag", "add");
-                    mServiceIntent.putExtra("symbol", input.toString());
+                    mServiceIntent.putExtra("symbol", input.toString().toUpperCase());
                     startService(mServiceIntent);
+
+
+
                   }
                 }
               })
@@ -131,9 +143,9 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
     ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mCursorAdapter);
     mItemTouchHelper = new ItemTouchHelper(callback);
-    mItemTouchHelper.attachToRecyclerView(recyclerView);
+    mItemTouchHelper.attachToRecyclerView(recyclerView); //Attaches the ItemTouchHelper to the provided RecyclerView.
 
-    mTitle = getTitle();
+    mTitle = getTitle(); //get activity title
     if (isConnected){
       long period = 3600L;
       long flex = 10L;
@@ -141,9 +153,9 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
       // create a periodic task to pull stocks once every hour after the app has been opened. This
       // is so Widget data stays up to date.
-      PeriodicTask periodicTask = new PeriodicTask.Builder()
+      PeriodicTask periodicTask = new PeriodicTask.Builder() //periodic task is one that will recur at the specified interval, without needing to be rescheduled.
           .setService(StockTaskService.class)
-          .setPeriod(period)
+          .setPeriod(period)  //in seconds
           .setFlex(flex)
           .setTag(periodicTag)
           .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
@@ -159,7 +171,28 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   @Override
   public void onResume() {
     super.onResume();
+    LocalBroadcastManager.getInstance(this).registerReceiver(BReciever, new IntentFilter("tickerStatus"));
     getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
+
+  }
+  protected void onPause(){
+    super.onPause();
+    LocalBroadcastManager.getInstance(this).unregisterReceiver(BReciever);
+  }
+//broadcast to recieve data from the service
+  private BroadcastReceiver BReciever = new BroadcastReceiver(){
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      activityResult = intent.getIntExtra("result",0);
+      System.out.println("gcm onrecieve executed "+activityResult);
+
+      if(activityResult==2)
+       tickerNotFoundToast();
+    }
+  };
+  public void tickerNotFoundToast(){
+    Toast.makeText(mContext, R.string.stock_not_found, Toast.LENGTH_SHORT).show();
   }
 
   public void networkToast(){

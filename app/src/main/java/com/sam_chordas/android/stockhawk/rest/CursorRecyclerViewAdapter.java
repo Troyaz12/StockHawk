@@ -16,30 +16,30 @@ public abstract class CursorRecyclerViewAdapter <VH extends RecyclerView.ViewHol
   private Cursor mCursor;
   private boolean dataIsValid;
   private int rowIdColumn;
-  private DataSetObserver mDataSetObserver;
+  private DataSetObserver mDataSetObserver;  //recieves callback when data has been changed or invalid
   public CursorRecyclerViewAdapter(Context context, Cursor cursor){
     mCursor = cursor;
-    dataIsValid = cursor != null;
-    rowIdColumn = dataIsValid ? mCursor.getColumnIndex("_id") : -1;
-    mDataSetObserver = new NotifyingDataSetObserver();
+    dataIsValid = cursor != null;  //set to true if cursor is not null
+    rowIdColumn = dataIsValid ? mCursor.getColumnIndex("_id") : -1;  //dataIsValid true return the column index, otherwise return -1
+    mDataSetObserver = new NotifyingDataSetObserver();    //creates a new data set observer
     if (dataIsValid){
-      mCursor.registerDataSetObserver(mDataSetObserver);
+      mCursor.registerDataSetObserver(mDataSetObserver);  //Register an observer that is called when changes happen to the data used by this adapter.
     }
   }
 
   public Cursor getCursor(){
     return mCursor;
-  }
+  }   //returns cursor
 
   @Override
-  public int getItemCount(){
+  public int getItemCount(){            //returns number of items in the cursor
     if (dataIsValid && mCursor != null){
       return mCursor.getCount();
     }
     return 0;
   }
 
-  @Override public long getItemId(int position) {
+  @Override public long getItemId(int position) {       //get row id of item selected
     if (dataIsValid && mCursor != null && mCursor.moveToPosition(position)){
       return mCursor.getLong(rowIdColumn);
     }
@@ -48,9 +48,12 @@ public abstract class CursorRecyclerViewAdapter <VH extends RecyclerView.ViewHol
 
   @Override public void setHasStableIds(boolean hasStableIds) {
     super.setHasStableIds(true);
-  }
+  }  //Returns true if this adapter publishes a unique long
+     // value that can act as a key for the item at a given position in the data set.
 
-  public abstract void onBindViewHolder(VH viewHolder, Cursor cursor);
+
+  public abstract void onBindViewHolder(VH viewHolder, Cursor cursor);  //Called by RecyclerView to display the data at the specified position.
+
 
   @Override
   public void onBindViewHolder(VH viewHolder, int position) {
@@ -70,16 +73,16 @@ public abstract class CursorRecyclerViewAdapter <VH extends RecyclerView.ViewHol
     }
     final Cursor oldCursor = mCursor;
     if (oldCursor != null && mDataSetObserver != null){
-      oldCursor.unregisterDataSetObserver(mDataSetObserver);
+      oldCursor.unregisterDataSetObserver(mDataSetObserver);  //will no longer track changes for this cursor
     }
     mCursor = newCursor;
     if (mCursor != null){
       if (mDataSetObserver != null){
-        mCursor.registerDataSetObserver(mDataSetObserver);
+        mCursor.registerDataSetObserver(mDataSetObserver);  //track changes to the new cursor
       }
-      rowIdColumn = newCursor.getColumnIndexOrThrow("_id");
+      rowIdColumn = newCursor.getColumnIndexOrThrow("_id");  //get row
       dataIsValid = true;
-      notifyDataSetChanged();
+      notifyDataSetChanged();                 //Notify registered observers that the data has changed
     }else{
       rowIdColumn = -1;
       dataIsValid = false;
@@ -89,10 +92,10 @@ public abstract class CursorRecyclerViewAdapter <VH extends RecyclerView.ViewHol
   }
 
   private class NotifyingDataSetObserver extends DataSetObserver{
-    @Override public void onChanged() {
+    @Override public void onChanged() {  //This method is called when the entire data set has changed, most likely through a call to requery() on a Cursor.
       super.onChanged();
       dataIsValid = true;
-      notifyDataSetChanged();
+      notifyDataSetChanged();         //Notify any registered observers that the data set has changed.
     }
 
     @Override public void onInvalidated() {
