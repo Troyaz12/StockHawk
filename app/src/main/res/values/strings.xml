@@ -20,4 +20,6 @@
     <string name="stockWidget">StockWidget</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    <string name="stocks_widget">Stocks Widget</string>
+    <string name="New_Stock_Widget">New_Stock_Widget</string>
 </resources>

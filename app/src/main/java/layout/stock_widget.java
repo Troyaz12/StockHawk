@@ -1,14 +1,13 @@
 package layout;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.RemoteViews;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 
-import com.sam_chordas.android.stockhawk.R;
-import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
+import com.sam_chordas.android.stockhawk.service.StockTaskService;
 
 /**
  * Implementation of App Widget functionality.
@@ -26,7 +25,7 @@ public class stock_widget extends AppWidgetProvider {
 
         // Instruct the widget manager to update the widget
     //    appWidgetManager.updateAppWidget(appWidgetId, views);
-
+/*
         String symbol = "IBM";
         String bidPrice = "165.00";
         String change = "-100";
@@ -47,15 +46,38 @@ public class stock_widget extends AppWidgetProvider {
 
         //Tell the AppWidgetManger to perform an update on the current app widget
         appWidgetManager.updateAppWidget(appWidgetId,views);
+      */
+        context.startService(new Intent(context,TodayWidgetIntentService.class));
+
+
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
-        for (int appWidgetId : appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId);
-        }
+     //   for (int appWidgetId : appWidgetIds) {
+     //       updateAppWidget(context, appWidgetManager, appWidgetId);
+     //   }
+
+        context.startService(new Intent(context,TodayWidgetIntentService.class));
     }
+
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
+                                          int appWidgetId, Bundle newOptions){
+
+        context.startService(new Intent(context,TodayWidgetIntentService.class));
+
+    }
+    @Override
+    public void onReceive(@NonNull Context context, @NonNull Intent intent){
+        super.onReceive(context,intent);
+        if(StockTaskService.ACTION_DATA_UPDATED.equals(intent.getAction())){
+            System.out.println("widgetProvider ACTIONDATAUPDATE RECIEVED");
+            context.startService(new Intent(context,TodayWidgetIntentService.class));
+        }
+
+    }
+
 
     @Override
     public void onEnabled(Context context) {

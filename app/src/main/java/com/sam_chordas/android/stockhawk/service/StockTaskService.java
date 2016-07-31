@@ -2,6 +2,7 @@ package com.sam_chordas.android.stockhawk.service;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -34,7 +35,8 @@ public class StockTaskService extends GcmTaskService{  //Implemented by the clie
   private Context mContext;
   private StringBuilder mStoredSymbols = new StringBuilder();   //allows you to expand the number of chars in the string
   private boolean isUpdate;
-
+  public static final String ACTION_DATA_UPDATED =
+          "com.sam_chordas.android.stockhawk.ACTION_DATA_UPDATED";
   public StockTaskService(){}
 
   public StockTaskService(Context context){
@@ -142,8 +144,16 @@ public class StockTaskService extends GcmTaskService{  //Implemented by the clie
         e.printStackTrace();
       }
     }
-
+    updateWidgets();
     return result;
+  }
+
+  private void updateWidgets(){
+    //Context context = getContext();
+    System.out.println("updateWidgets executed");
+    Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
+            .setPackage(mContext.getPackageName());
+    mContext.sendBroadcast(dataUpdatedIntent);
   }
 
 }

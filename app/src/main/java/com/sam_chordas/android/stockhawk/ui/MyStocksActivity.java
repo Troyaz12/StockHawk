@@ -127,9 +127,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                     mServiceIntent.putExtra("tag", "add");
                     mServiceIntent.putExtra("symbol", input.toString().toUpperCase());
                     startService(mServiceIntent);
-
-
-
                   }
                 }
               })
