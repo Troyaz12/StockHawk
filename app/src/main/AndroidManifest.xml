@@ -47,8 +47,10 @@ package="com.sam_chordas.android.stockhawk">
     </service>
     <service android:name=".service.StockIntentService" />
 
-    <provider android:name=".data.generated.QuoteProvider" android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
+    <provider android:name=".data.generated.QuoteProvider"
+        android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
         android:exported="false" />
 
 </application>
 
+</manifest>
