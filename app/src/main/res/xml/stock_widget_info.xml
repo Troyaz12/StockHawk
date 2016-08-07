@@ -4,7 +4,10 @@
     android:initialLayout="@layout/stock_widget"
     android:minHeight="40dp"
     android:minWidth="40dp"
-    android:previewImage="@drawable/example_appwidget_preview"
-    android:resizeMode="horizontal|vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:minResizeHeight="@dimen/widget_min_resize_height"
+    android:minResizeWidth="@dimen/widget_min_resize_width"
+    android:resizeMode="horizontal"
     android:updatePeriodMillis="0"
-   ></appwidget-provider>
+    tools:ignore="UnusedAttribute"
+  />

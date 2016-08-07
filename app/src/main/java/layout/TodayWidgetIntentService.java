@@ -1,11 +1,16 @@
 package layout;
 
+import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import com.sam_chordas.android.stockhawk.R;
@@ -62,54 +67,87 @@ public class TodayWidgetIntentService extends IntentService {
             data.close();
             return;
         }
+        //get data from cursor
+        int stock_ID = data.getInt(STOCK_ID);
+
+        String stockSymbol = data.getString(STOCK_SYMBOL);
+        System.out.println("stock symbol: "+stockSymbol);
+        String stockBidPrice = data.getString(STOCK_BIDPRICE);
+        String stockPercentChange = data.getString(STOCK_PERCENT_CHANGE);
+        String stockChange = data.getString(STOCK_CHANGE);
+        String stockISUP = data.getString(STOCK_ISUP);
+
+        data.close();
+
 
         for(int appWidgetId:appWidgetIds) {
 
-       //     recyclerView.setLayoutManager(new LinearLayoutManager(this));
-       //     getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);  //call ensures that a loader is initialized and active.
+            // Find the correct layout based on the widget's width
+            int widgetWidth = getWidgetWidth(appWidgetManager, appWidgetId);
+            int defaultWidth = getResources().getDimensionPixelSize(R.dimen.widget_default_width);
+            int largeWidth = getResources().getDimensionPixelSize(R.dimen.widget_large_width);
+            int layoutId;
+            if (widgetWidth >= largeWidth) {
+                layoutId = R.layout.widget_large;
+                System.out.println("screen size: large");
+            } else if (widgetWidth >= defaultWidth) {
+                layoutId = R.layout.widget;
+                System.out.println("screen size: medium");
 
-      //      int recyclerView = R.id.recycler_view;
-    //        RemoteViews views = new RemoteViews(getPackageName(), recyclerView);
-     //       mCursorAdapter = new QuoteCursorAdapter(this, null);
-      //      views.setAdapter(mCursorAdapter);
-       //     views.
-            System.out.println("widget service exe.");
-            int layoutId = R.layout.stock_widget;
-            RemoteViews views = new RemoteViews(getPackageName(), R.layout.stock_widget);
-       //     do {
-            //    RemoteViews views = new RemoteViews(getPackageName(),R.layout.widget_layout);
-                //get data from cursor
-                int stock_ID = data.getInt(STOCK_ID);
-                String stockSymbol = "aaa";//data.getString(STOCK_SYMBOL);
-                System.out.println("widget service exe" +stockSymbol);
+            } else {
+                layoutId = R.layout.widget_small;
+                System.out.println("screen size: small");
 
-                String stockBidPrice = "stockbid";//data.getString(STOCK_BIDPRICE);
-                String stockPercentChange = "stockChange"; //data.getString(STOCK_PERCENT_CHANGE);
-                String stokChange = data.getString(STOCK_CHANGE);
-                String stockISUP = data.getString(STOCK_ISUP);
+            }
 
-                //add data to views
-        //    views.setTextViewText(R.id.stock_symbol_widget, stockSymbol);
-            //     views.setTextViewText(R.id.bid_price_widget, stockBidPrice);
-           //     views.setTextViewText(R.id.change_widget, stockPercentChange);
+            System.out.println("widget service exe now: "+data.getCount());
 
-         //       views.addView(R.id.view_container,subView);
+            RemoteViews views = new RemoteViews(getBaseContext().getPackageName(), layoutId);
 
-                //create an Intent to launch MainActivity
-                Intent launchIntent = new Intent(this, MyStocksActivity.class);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
-                views.setOnClickPendingIntent(R.id.widget, pendingIntent);
+           //add data to views
+           views.setTextViewText(R.id.stock_information_widget, stockSymbol);
+           views.setTextViewText(R.id.bid_price_widget, stockBidPrice);
+           views.setTextViewText(R.id.change_widget, stockPercentChange);
 
-                //Tell the AppWidgetManager to perform an update on the current app widget
-                appWidgetManager.updateAppWidget(appWidgetId, views);
+           //views.addView(R.id.view_container,views);
 
 
-     //       }while(data.moveToNext());
+           //create an Intent to launch MainActivity
+           Intent launchIntent = new Intent(this, MyStocksActivity.class);
+           PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
+           views.setOnClickPendingIntent(R.id.widget, pendingIntent);
 
+           //Tell the AppWidgetManager to perform an update on the current app widget
+           appWidgetManager.updateAppWidget(appWidgetId, views);
         }
 
-                data.close();
+           data.close();
     }
+    private int getWidgetWidth(AppWidgetManager appWidgetManager, int appWidgetId) {
+       // Prior to Jelly Bean, widgets were always their default size
+           if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+              return getResources().getDimensionPixelSize(R.dimen.widget_default_width);
+             }
+       // For Jelly Bean and higher devices, widgets can be resized - the current size can be
+            // retrieved from the newly added App Widget Options
+            return getWidgetWidthFromOptions(appWidgetManager, appWidgetId);
+        }
 
+       @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+       private int getWidgetWidthFromOptions(AppWidgetManager appWidgetManager, int appWidgetId) {
+        Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
+            if (options.containsKey(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)) {
+              int minWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+                // The width returned is in dp, but we'll convert it to pixels to match the other widths
+                 DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+               return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, minWidthDp,
+                        displayMetrics);
+              }
+             return  getResources().getDimensionPixelSize(R.dimen.widget_default_width);
+        }
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+    private void setRemoteContentDescription(RemoteViews views, String description) {
+        //  views.setContentDescription(R.id.widget_icon, description);
+    }
 
 }

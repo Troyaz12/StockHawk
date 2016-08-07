@@ -74,6 +74,8 @@ public class Utils {
   }
 
   public static ContentProviderOperation buildBatchOperation(JSONObject jsonObject){
+
+ //   ContentProviderOperation.Builder builder = ContentProviderOperation.newDelete(QuoteProvider.Quotes.CONTENT_URI);
     ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
         QuoteProvider.Quotes.CONTENT_URI);
     try {
