@@ -1,51 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
 
-        <FrameLayout
-            android:id="@+id/widget"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/abc_action_bar_default_height_material"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_list_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <LinearLayout
+        android:id="@+id/widget_list_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:background="#000000"
         >
+
+        <TextView
+            android:textColor="@color/material_red_700"
+            android:id="@+id/stock_information_widget"
+            style="@style/StockSymbolTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:contentDescription="@string/stock"
+
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="right">
+
+
             <TextView
-                android:textColor="@color/material_red_700"
-                android:id="@+id/stock_information_widget"
-                style="@style/StockSymbolTextStyle"
+                android:id="@+id/bid_price_widget"
+                style="@style/BidPriceTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="left"
-                android:contentDescription="@string/stock"
+                android:paddingRight="10sp"
+                android:contentDescription="@string/bidPrice"
 
                 />
-        </FrameLayout>
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-       >
-            <ListView
-                android:id="@+id/widget_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:divider="@null"
-                android:dividerHeight="0dp"
-                tools:listitem="@layout/widget"
-                />
             <TextView
-                android:id="@+id/widget_empty"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:text="@string/empty_list"
+                android:id="@+id/change_widget"
+                android:background="@drawable/percent_change_pill"
+                style="@style/PercentChangeTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:contentDescription="@string/change"
+
                 />
-        </FrameLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 
 
+
+
+
+</FrameLayout>
 
 
 

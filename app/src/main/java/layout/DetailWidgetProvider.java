@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -11,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.widget.RemoteViews;
 
 import com.sam_chordas.android.stockhawk.R;
+import com.sam_chordas.android.stockhawk.service.StockTaskService;
 import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
 
 /**
@@ -53,12 +55,21 @@ public class DetailWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
         super.onReceive(context, intent);
-  /*      if (SunshineSyncAdapter.ACTION_DATA_UPDATED.equals(intent.getAction())) {
+
+        if(StockTaskService.ACTION_DATA_UPDATED.equals(intent.getAction())){
+            System.out.println("DetailWidgetProvider ACTIONDATAUPDATE RECIEVED");
+
+            //update widget when broadcast is recieved
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
                     new ComponentName(context, getClass()));
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list);
-        }   */
+
+
+        }
+
+
+
     }
 
     /**
@@ -70,6 +81,7 @@ public class DetailWidgetProvider extends AppWidgetProvider {
     private void setRemoteAdapter(Context context, @NonNull final RemoteViews views) {
         views.setRemoteAdapter(R.id.widget_list,
                 new Intent(context, DetailWidgetRemoteService.class));
+
     }
 
     /**

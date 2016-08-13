@@ -60,6 +60,7 @@ public class TodayWidgetIntentService extends IntentService {
         //get data from Content Provider
         Cursor data = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,STOCK_COLUMNS,null,null,null);
 
+
         if(data==null)
                return;
 

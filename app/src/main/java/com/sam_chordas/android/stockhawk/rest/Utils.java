@@ -74,15 +74,16 @@ public class Utils {
   }
 
   public static ContentProviderOperation buildBatchOperation(JSONObject jsonObject){
-
- //   ContentProviderOperation.Builder builder = ContentProviderOperation.newDelete(QuoteProvider.Quotes.CONTENT_URI);
     ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
         QuoteProvider.Quotes.CONTENT_URI);
+    long milli = System.currentTimeMillis();
+    String time = String.valueOf(milli);
     try {
           String change = jsonObject.getString("Change");
           builder.withValue(QuoteColumns.SYMBOL, jsonObject.getString("symbol"));
           builder.withValue(QuoteColumns.BIDPRICE, truncateBidPrice(jsonObject.getString("Bid")));
           builder.withValue(QuoteColumns.PERCENT_CHANGE, truncateChange(jsonObject.getString("ChangeinPercent"), true));
+          builder.withValue(QuoteColumns.CREATED,milli);
           builder.withValue(QuoteColumns.CHANGE, truncateChange(change, false));
           builder.withValue(QuoteColumns.ISCURRENT, 1);
           if (change.charAt(0) == '-'){

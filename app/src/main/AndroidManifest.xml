@@ -17,13 +17,15 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+
+
         <receiver
             android:name="layout.DetailWidgetProvider"
 
             android:label="StockHawk">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.example.android.sunshine.app.ACTION_DATA_UPDATED" />
+                <action android:name="com.sam_chordas.android.stockhawk.ACTION_DATA_UPDATED" />
             </intent-filter>
 
             <meta-data
@@ -60,6 +62,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.lineChartIntent"
+            android:label="@string/stock_chart"
+            android:parentActivityName=".ui.MyStocksActivity"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.sam_chordas.android.stockhawk.ui.MyStocksActivity" />
+        </activity>
+        
         <service
             android:name="layout.TodayWidgetIntentService"
             android:exported="true"
@@ -79,20 +91,13 @@
         <service android:name=".service.StockIntentService" />
 
         <provider
-            android:name=".data.generated.QuoteProvider"
             android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
+            android:name=".data.generated.QuoteProvider"
+
             android:exported="false" />
 
 
-        <receiver android:name="layout.DetailWidgetProvider">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
 
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/detail_widget_provider_info" />
-        </receiver>
     </application>
 
 </manifest>

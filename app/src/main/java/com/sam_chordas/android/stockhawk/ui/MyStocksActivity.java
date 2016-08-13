@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.facebook.stetho.Stetho;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
@@ -65,6 +66,16 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     mContext = this;
 
 
+    //add stetho
+    Stetho.initialize(
+            Stetho.newInitializerBuilder(this)
+            .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+            .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+            .build()
+    );
+
+
+
     ConnectivityManager cm =    //Class that answers queries about the state of network connectivity. It also notifies applications when network connectivity changes.
         (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE); //get an instance of connectivity manager
 
@@ -92,12 +103,20 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
             new RecyclerViewItemClickListener.OnItemClickListener() {
               @Override public void onItemClick(View v, int position) {
-                //TODO:
-                // do something on item click
+
+                //get cursor
+                Cursor c = mCursorAdapter.getCursor();
+                //move to stock selected
+                c.moveToPosition(position);
+                //get symbol from cursor and turn into a string
+                String stockSymbol = c.getString(c.getColumnIndex("symbol"));
+
+                //pass to method
+                viewChart(stockSymbol);
+
               }
             }));
     recyclerView.setAdapter(mCursorAdapter);
-
 
     FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
     fab.setContentDescription(getString(R.string.add_stocks));
@@ -188,6 +207,20 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
        tickerNotFoundToast();
     }
   };
+
+  //runs line chart activity
+  public void viewChart(String symbol){
+    Intent lineChartIntent1 = new Intent(mContext, lineChartIntent.class);
+    //pass symbol to intent
+    lineChartIntent1.putExtra("tickerSelected", symbol);
+    lineChartIntent1.putExtra("connected",isConnected);
+
+
+    mContext.startActivity(lineChartIntent1);
+
+
+  }
+
   public void tickerNotFoundToast(){
     Toast.makeText(mContext, R.string.stock_not_found, Toast.LENGTH_SHORT).show();
   }
