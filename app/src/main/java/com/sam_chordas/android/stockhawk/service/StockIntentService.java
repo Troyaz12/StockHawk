@@ -32,8 +32,6 @@ public class StockIntentService extends IntentService { //handle asynchronous re
 
     int results = stockTaskService.onRunTask(new TaskParams(intent.getStringExtra("tag"), args));    //get result code
     sendBroadcast(results);
-
-    System.out.println("gsm result: "+results);
   }
 
   private void sendBroadcast(int results){

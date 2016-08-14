@@ -39,15 +39,8 @@ public class TodayWidgetIntentService extends IntentService {
     private static final int STOCK_CHANGE=4;
     private static final int STOCK_ISUP =5;
 
- //   private static final int CURSOR_LOADER_ID = 0;
-  //  private QuoteCursorAdapter mCursorAdapter;
-
-
-
-
     public TodayWidgetIntentService(){
         super("TodayWidgetIntentService");
-        System.out.println("today widget intent service cunstructor");
 
     }
 
@@ -72,7 +65,6 @@ public class TodayWidgetIntentService extends IntentService {
         int stock_ID = data.getInt(STOCK_ID);
 
         String stockSymbol = data.getString(STOCK_SYMBOL);
-        System.out.println("stock symbol: "+stockSymbol);
         String stockBidPrice = data.getString(STOCK_BIDPRICE);
         String stockPercentChange = data.getString(STOCK_PERCENT_CHANGE);
         String stockChange = data.getString(STOCK_CHANGE);
@@ -90,18 +82,11 @@ public class TodayWidgetIntentService extends IntentService {
             int layoutId;
             if (widgetWidth >= largeWidth) {
                 layoutId = R.layout.widget_large;
-                System.out.println("screen size: large");
             } else if (widgetWidth >= defaultWidth) {
                 layoutId = R.layout.widget;
-                System.out.println("screen size: medium");
-
             } else {
                 layoutId = R.layout.widget_small;
-                System.out.println("screen size: small");
-
             }
-
-            System.out.println("widget service exe now: "+data.getCount());
 
             RemoteViews views = new RemoteViews(getBaseContext().getPackageName(), layoutId);
 

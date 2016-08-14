@@ -13,6 +13,8 @@
         android:orientation="horizontal"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:background="#000000"
         >
 
@@ -22,7 +24,7 @@
             style="@style/StockSymbolTextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="left"
+            android:gravity="start"
             android:contentDescription="@string/stock"
 
             />
@@ -30,7 +32,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="right">
+            android:gravity="end">
 
 
             <TextView
@@ -39,6 +41,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingRight="10sp"
+                android:paddingEnd="10sp"
+
                 android:contentDescription="@string/bidPrice"
 
                 />
@@ -50,18 +54,13 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
                 android:contentDescription="@string/change"
 
                 />
-
         </LinearLayout>
-
     </LinearLayout>
-
-
-
-
-
 </FrameLayout>
 
 

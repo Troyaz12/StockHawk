@@ -57,13 +57,10 @@ public class DetailWidgetRemoteService extends RemoteViewsService {
                 // data. Therefore we need to clear (and finally restore) the calling identity so
                 // that calls use our process and permission
                 final long identityToken = Binder.clearCallingIdentity();
-             //   data = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,STOCK_COLUMNS,null,null,null);
 
                 data = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,STOCK_COLUMNS,QuoteColumns.ISCURRENT + " = ?",
                         new String[]{"1"},
                         null);
-
-                System.out.println("here is the data: "+data);
 
                 Binder.restoreCallingIdentity(identityToken);
             }
@@ -92,10 +89,8 @@ public class DetailWidgetRemoteService extends RemoteViewsService {
 
                 int stock_ID = data.getInt(STOCK_ID);
 
-                System.out.println("number of widget datapoints"+data.getCount());
 
                 String stockSymbol = data.getString(STOCK_SYMBOL);
-                System.out.println("stock symbol: "+stockSymbol);
                 String stockBidPrice = data.getString(STOCK_BIDPRICE);
                 String stockPercentChange = data.getString(STOCK_PERCENT_CHANGE);
                 String stockChange = data.getString(STOCK_CHANGE);
@@ -105,13 +100,6 @@ public class DetailWidgetRemoteService extends RemoteViewsService {
                 views.setTextViewText(R.id.stock_information_widget, stockSymbol);
                 views.setTextViewText(R.id.bid_price_widget, stockBidPrice);
                 views.setTextViewText(R.id.change_widget, stockPercentChange);
-
-
-
-                //create an Intent to launch MainActivity
-       //         Intent launchIntent = new Intent(getBaseContext(), MyStocksActivity.class);
-       //         PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, launchIntent, 0);
-       //         views.setOnClickPendingIntent(R.id.widget_list_item, pendingIntent);
 
                 return views;
             }
@@ -144,11 +132,4 @@ public class DetailWidgetRemoteService extends RemoteViewsService {
             }
         };
     }
-
-
-
-
-
-
-
 }

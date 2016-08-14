@@ -56,7 +56,7 @@ public class lineChartIntent extends AppCompatActivity{
 
         if(connectionStatus==true){
             try {
-                stockData = new getStockHistoryTask()
+                stockData = new getStockHistoryTask(this)
                         .execute(ticker)
                         .get();
             } catch (InterruptedException e) {
@@ -77,7 +77,6 @@ public class lineChartIntent extends AppCompatActivity{
         }else{
             Cursor stockSavedData = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI, STOCK_COLUMNS,QuoteColumns.SYMBOL + " = ?",new String[]{ticker},STOCK_CREATED+" ASC");
             stockSavedData.moveToFirst();
-            System.out.println("cursor count " + stockSavedData.getCount());
 
             for (int i = 0; i < stockSavedData.getCount(); i++) {
 
@@ -91,16 +90,12 @@ public class lineChartIntent extends AppCompatActivity{
                     String stock =stockSavedData.getString(STOCK_BIDPRICE);
 
                     stockPrice = Float.parseFloat(stock);
-                    System.out.println("stock price is " + stock);
-                    System.out.println("stock price is " + stockPrice);
 
                     entries.add(new Entry(i, stockPrice));
                     stockSavedData.moveToNext();
                 }
-
                 count++;
             }
-
         }
 
         lineChart = (LineChart) findViewById(R.id.lineChart);

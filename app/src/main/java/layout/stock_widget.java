@@ -38,7 +38,6 @@ public class stock_widget extends AppWidgetProvider {
     public void onReceive(@NonNull Context context, @NonNull Intent intent){
         super.onReceive(context,intent);
         if(StockTaskService.ACTION_DATA_UPDATED.equals(intent.getAction())){
-            System.out.println("widgetProvider ACTIONDATAUPDATE RECIEVED");
             context.startService(new Intent(context,TodayWidgetIntentService.class));
         }
 

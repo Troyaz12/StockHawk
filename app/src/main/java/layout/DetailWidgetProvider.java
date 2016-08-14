@@ -36,18 +36,6 @@ public class DetailWidgetProvider extends AppWidgetProvider {
             } else {
                 setRemoteAdapterV11(context, views);
             }
-       /*     boolean useDetailActivity = context.getResources()
-                    .getBoolean(R.bool.use_detail_activity);
-            Intent clickIntentTemplate = useDetailActivity
-                    ? new Intent(context, DetailActivity.class)
-                    : new Intent(context, MainActivity.class);
-            PendingIntent clickPendingIntentTemplate = TaskStackBuilder.create(context)
-                    .addNextIntentWithParentStack(clickIntentTemplate)
-                    .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-            views.setPendingIntentTemplate(R.id.widget_list, clickPendingIntentTemplate);
-            views.setEmptyView(R.id.widget_list, R.id.widget_empty);
-*/
-            // Tell the AppWidgetManager to perform an update on the current app widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
     }
@@ -57,19 +45,13 @@ public class DetailWidgetProvider extends AppWidgetProvider {
         super.onReceive(context, intent);
 
         if(StockTaskService.ACTION_DATA_UPDATED.equals(intent.getAction())){
-            System.out.println("DetailWidgetProvider ACTIONDATAUPDATE RECIEVED");
 
             //update widget when broadcast is recieved
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
                     new ComponentName(context, getClass()));
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list);
-
-
         }
-
-
-
     }
 
     /**
@@ -81,7 +63,6 @@ public class DetailWidgetProvider extends AppWidgetProvider {
     private void setRemoteAdapter(Context context, @NonNull final RemoteViews views) {
         views.setRemoteAdapter(R.id.widget_list,
                 new Intent(context, DetailWidgetRemoteService.class));
-
     }
 
     /**

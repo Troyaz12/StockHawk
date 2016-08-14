@@ -42,6 +42,8 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
     robotoLight = Typeface.createFromAsset(mContext.getAssets(), "fonts/Roboto-Light.ttf");  //Provides access to an application's raw asset files;
     View itemView = LayoutInflater.from(parent.getContext())      //Obtains the LayoutInflater from the given context.
             .inflate(R.layout.list_item_quote, parent, false);    //inflate this view
+
+
     ViewHolder vh = new ViewHolder(itemView);     //put view in viewholder
     return vh;      //return the viewholder
   }

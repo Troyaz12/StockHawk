@@ -24,4 +24,6 @@
     <string name="New_Stock_Widget">New_Stock_Widget</string>
     <string name="empty_list">Empty List</string>
     <string name="stock_chart">Stock Chart</string>
+    <string name="no_stock_data_available">No Stock Data Available</string>
+    <string name="no_network_available">No stock information available. The network is not available to fetch stock data.</string>
 </resources>

@@ -118,8 +118,6 @@ public class StockTaskService extends GcmTaskService{  //Implemented by the clie
       urlString = urlStringBuilder.toString();
       try{
         getResponse = fetchData(urlString);        //make a network call to get data
-        System.out.println("here is the data" +getResponse);
-        System.out.println("URL is: "+urlString );
         result = GcmNetworkManager.RESULT_SUCCESS;
         try {
           ContentValues contentValues = new ContentValues();
@@ -136,7 +134,6 @@ public class StockTaskService extends GcmTaskService{  //Implemented by the clie
                     Utils.quoteJsonToContentVals(getResponse));
           }else{
             result = GcmNetworkManager.RESULT_FAILURE;
-            System.out.println("executed" + result);
           }
         }catch (RemoteException | OperationApplicationException e){
           Log.e(LOG_TAG, "Error applying batch insert", e);
@@ -150,8 +147,6 @@ public class StockTaskService extends GcmTaskService{  //Implemented by the clie
   }
 
   private void updateWidgets(){
-    //Context context = getContext();
-    System.out.println("updateWidgets executed");
     Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
             .setPackage(mContext.getPackageName());
     mContext.sendBroadcast(dataUpdatedIntent);

@@ -22,6 +22,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -59,6 +60,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   private Cursor mCursor;
   boolean isConnected;
   private int activityResult = 0;     //stores if the ticker was valid or not from the service
+  RecyclerView recyclerView;
+  TextView emptyView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +98,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         networkToast();
       }
     }
-    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+    recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
     getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);  //call ensures that a loader is initialized and active.
 
@@ -116,6 +120,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
               }
             }));
+
     recyclerView.setAdapter(mCursorAdapter);
 
     FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -201,7 +206,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     @Override
     public void onReceive(Context context, Intent intent) {
       activityResult = intent.getIntExtra("result",0);
-      System.out.println("gcm onrecieve executed "+activityResult);
 
       if(activityResult==2)
        tickerNotFoundToast();
@@ -229,6 +233,19 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     Toast.makeText(mContext, getString(R.string.network_toast), Toast.LENGTH_SHORT).show();
   }
 
+  private void updateEmptyView(){
+    System.out.println("update run: ");
+    emptyView = (TextView) findViewById(R.id.listview_stocktable_empty);
+
+    if(null !=emptyView){
+      int message = R.string.empty_list;
+      if(!isConnected){
+        message = R.string.no_network_available;
+      }
+      emptyView.setText(message);
+    }
+  }
+
   public void restoreActionBar() {
     ActionBar actionBar = getSupportActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -252,6 +269,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
     //noinspection SimplifiableIfStatement
     if (id == R.id.action_settings) {
+
       return true;
     }
 
@@ -279,6 +297,19 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   public void onLoadFinished(Loader<Cursor> loader, Cursor data){
     mCursorAdapter.swapCursor(data);
     mCursor = data;
+
+    //if there is no data then show empty data mesasge
+    if(mCursor.getCount()==0){
+      updateEmptyView();
+      recyclerView.setVisibility(View.INVISIBLE);
+      emptyView.setVisibility(View.VISIBLE);
+    }else{
+      recyclerView.setVisibility(View.VISIBLE);
+
+      if(emptyView!=null)
+        emptyView.setVisibility(View.INVISIBLE);
+    }
+
   }
 
   @Override
