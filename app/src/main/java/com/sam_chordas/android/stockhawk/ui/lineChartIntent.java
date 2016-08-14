@@ -99,7 +99,7 @@ public class lineChartIntent extends AppCompatActivity{
         }
 
         lineChart = (LineChart) findViewById(R.id.lineChart);
-        lineChart.setDescription(ticker +" 1 Year Stock Price Chart");
+        lineChart.setDescription(ticker +getString(R.string.price_chart_title));
         lineChart.setDescriptionTextSize(16);
         lineChart.setDrawBorders(true);
         LineDataSet dataSet = new LineDataSet(entries, "stock chart");

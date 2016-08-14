@@ -26,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.facebook.stetho.Stetho;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
@@ -67,17 +66,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = this;
-
-
-    //add stetho
-    Stetho.initialize(
-            Stetho.newInitializerBuilder(this)
-            .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
-            .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
-            .build()
-    );
-
-
 
     ConnectivityManager cm =    //Class that answers queries about the state of network connectivity. It also notifies applications when network connectivity changes.
         (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE); //get an instance of connectivity manager
@@ -141,7 +129,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                       new String[] { input.toString().toUpperCase() }, null);
                   if (c.getCount() != 0) {
                     Toast toast =
-                        Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
+                        Toast.makeText(MyStocksActivity.this, R.string.stock_is_saved,
                             Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
                     toast.show();
@@ -234,7 +222,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   }
 
   private void updateEmptyView(){
-    System.out.println("update run: ");
     emptyView = (TextView) findViewById(R.id.listview_stocktable_empty);
 
     if(null !=emptyView){

@@ -26,4 +26,6 @@
     <string name="stock_chart">Stock Chart</string>
     <string name="no_stock_data_available">No Stock Data Available</string>
     <string name="no_network_available">No stock information available. The network is not available to fetch stock data.</string>
+    <string name="stock_is_saved">This stock is already saved!</string>
+    <string name="price_chart_title">" 1 Year Stock Price Chart"</string>
 </resources>

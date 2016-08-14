@@ -118,8 +118,6 @@ public class getStockHistoryTask extends AsyncTask<String,Void, String[][]> {
         String getDate = "Date";
         String getClose = "Close";
 
-
-
         try{
             JSONObject readerObject = new JSONObject(priceString);
             JSONObject queryObject = readerObject.getJSONObject(getResults);
