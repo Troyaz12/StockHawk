@@ -212,11 +212,11 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
 
   }
-
+//ticker is not found, create a toast message to the user
   public void tickerNotFoundToast(){
     Toast.makeText(mContext, R.string.stock_not_found, Toast.LENGTH_SHORT).show();
   }
-
+//no internet connection, create a toast message to the user
   public void networkToast(){
     Toast.makeText(mContext, getString(R.string.network_toast), Toast.LENGTH_SHORT).show();
   }
